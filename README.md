@@ -1,2 +1,1 @@
-# KeyboardMouse_stm32f1
-USB Keyboard Mouse library for STM32F1
+USB KeyboardMouseJoystickJoystick for STM32F1.
