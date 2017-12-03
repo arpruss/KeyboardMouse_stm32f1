@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <usb_serial.h>
 
 class USBSerialNOP : public USBSerial {

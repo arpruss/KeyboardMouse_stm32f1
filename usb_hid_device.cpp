@@ -19,6 +19,7 @@
  */
  
 #include "midihid.h" 
+#include "dummyserial.h"
  
 #if defined(USB_HID_KMJ) || defined(USB_HID_KM) || defined(USB_HID_J)
 

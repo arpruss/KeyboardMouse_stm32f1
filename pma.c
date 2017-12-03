@@ -31,7 +31,7 @@
  * routines in particular are obvious targets for performance
  * measurement and tuning. */
 
-__weak void usb_copy_to_pma(const uint8 *buf, uint16 len, uint16 pma_offset) {
+void usb_copy_to_pma(const uint8 *buf, uint16 len, uint16 pma_offset) {
     uint16 *dst = (uint16*)usb_pma_ptr(pma_offset);
     uint16 n = len >> 1;
     uint16 i;
@@ -45,7 +45,7 @@ __weak void usb_copy_to_pma(const uint8 *buf, uint16 len, uint16 pma_offset) {
     }
 }
 
-__weak void usb_copy_from_pma(uint8 *buf, uint16 len, uint16 pma_offset) {
+void usb_copy_from_pma(uint8 *buf, uint16 len, uint16 pma_offset) {
     uint32 *src = (uint32*)usb_pma_ptr(pma_offset);
     uint16 *dst = (uint16*)buf;
     uint16 n = len >> 1;
