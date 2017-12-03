@@ -1,0 +1,26 @@
+#######################################
+# Syntax Coloring Map KeyboardMouse
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Joystick	KEYWORD1
+Keyboard	KEYWORD1
+Mouse	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+release		KEYWORD2
+press	KEYWORD2
+releaseAll	KEYWORD2
+move	KEYWORD2
+click	KEYWORD2
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+KEY_RETURN		LITERAL1
