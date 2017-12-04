@@ -1,1 +1,1 @@
-USB KeyboardMouseJoystickJoystick for STM32F1.
+USB KeyboardMouse for STM32F1.
