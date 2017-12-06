@@ -133,7 +133,8 @@ typedef struct
  * HID interface
  */
 
-void usb_hid_enable(gpio_dev*, uint8);
+void usb_hid_enable(gpio_dev *disc_dev, uint8 disc_bit, uint8* report_descriptor, uint16 report_length, 
+    uint16 idVendor, uint16 idProduct, uint8* iManufacturer, uint8* iProduct);
 void usb_hid_disable(gpio_dev*, uint8);
 
 void   usb_hid_putc(char ch);

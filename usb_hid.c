@@ -35,8 +35,6 @@
 
 #include "midihid.h" 
  
-#if defined(USB_HID_KMJ) || defined(USB_HID_KM) || defined(USB_HID_J) 
- 
 #include "usb_hid.h"
 
 #include <libmaple/usb.h>
@@ -202,6 +200,53 @@ const uint8_t hid_report_descriptor[] = {
     0xC0,                           // End Collection
 #endif
 	
+#if defined(USB_HID_J2)	
+	//  Joystick
+	0x05, 0x01,						// Usage Page (Generic Desktop)
+	0x09, 0x04,						// Usage (Joystick)
+	0xA1, 0x01,						// Collection (Application)
+    0x85, 0x04,						//   REPORT_ID (4)
+	0x15, 0x00,						//	 Logical Minimum (0)
+	0x25, 0x01,						//   Logical Maximum (1)
+	0x75, 0x01,						//   Report Size (1)
+	0x95, 0x20,						//   Report Count (32)
+	0x05, 0x09,						//   Usage Page (Button)
+	0x19, 0x01,						//   Usage Minimum (Button #1)
+	0x29, 0x20,						//   Usage Maximum (Button #32)
+	0x81, 0x02,						//   Input (variable,absolute)
+	0x15, 0x00,						//   Logical Minimum (0)
+	0x25, 0x07,						//   Logical Maximum (7)
+	0x35, 0x00,						//   Physical Minimum (0)
+	0x46, 0x3B, 0x01,				//   Physical Maximum (315)
+	0x75, 0x04,						//   Report Size (4)
+	0x95, 0x01,						//   Report Count (1)
+	0x65, 0x14,						//   Unit (20)
+    0x05, 0x01,                     //   Usage Page (Generic Desktop)
+	0x09, 0x39,						//   Usage (Hat switch)
+	0x81, 0x42,						//   Input (variable,absolute,null_state)
+    0x05, 0x01,                     //Usage Page (Generic Desktop)
+	0x09, 0x01,						//Usage (Pointer)
+    0xA1, 0x00,                     //Collection ()
+	0x15, 0x00,						//   Logical Minimum (0)
+	0x26, 0xFF, 0x03,				//   Logical Maximum (1023)
+	0x75, 0x0A,						//   Report Size (10)
+	0x95, 0x04,						//   Report Count (4)
+	0x09, 0x30,						//   Usage (X)
+	0x09, 0x31,						//   Usage (Y)
+	0x09, 0x33,						//   Usage (Rx)
+	0x09, 0x34,						//   Usage (Ry)
+	0x81, 0x02,						//   Input (variable,absolute)
+    0xC0,                           // End Collection
+	0x15, 0x00,						// Logical Minimum (0)
+	0x26, 0xFF, 0x03,				// Logical Maximum (1023)
+	0x75, 0x0A,						// Report Size (10)
+	0x95, 0x02,						// Report Count (2)
+	0x09, 0x36,						// Usage (Slider)
+	0x09, 0x36,						// Usage (Slider)
+	0x81, 0x02,						// Input (variable,absolute)
+    0xC0,                           // End Collection
+#endif
+	
 	
 #ifdef USB_RAWHID
 	//	RAW HID
@@ -228,7 +273,7 @@ const uint8_t hid_report_descriptor[] = {
 /* FIXME move to Wirish */
 #define LEAFLABS_ID_VENDOR                0x1EAF
 #define MAPLE_ID_PRODUCT                  0x0024
-static const usb_descriptor_device usbHIDDescriptor_Device =
+static usb_descriptor_device usbHIDDescriptor_Device =
     USB_HID_DECLARE_DEV_DESC(LEAFLABS_ID_VENDOR, MAPLE_ID_PRODUCT);
 	
 
@@ -322,19 +367,19 @@ static const usb_descriptor_string usbHIDDescriptor_LangID = {
     .bString         = {0x09, 0x04},
 };
 
-/* FIXME move to Wirish */
+#define default_iManufacturer_length 8
 static const usb_descriptor_string usbHIDDescriptor_iManufacturer = {
-    .bLength = USB_DESCRIPTOR_STRING_LEN(8),
+    .bLength         = USB_DESCRIPTOR_STRING_LEN(default_iManufacturer_length),
     .bDescriptorType = USB_DESCRIPTOR_TYPE_STRING,
-    .bString = {'L', 0, 'e', 0, 'a', 0, 'f', 0,
+    .bString         = {'L', 0, 'e', 0, 'a', 0, 'f', 0,
                 'L', 0, 'a', 0, 'b', 0, 's', 0},
 };
 
-/* FIXME move to Wirish */
+#define default_iProduct_length 5
 static const usb_descriptor_string usbHIDDescriptor_iProduct = {
-    .bLength = USB_DESCRIPTOR_STRING_LEN(5),
+    .bLength         = USB_DESCRIPTOR_STRING_LEN(default_iProduct_length),
     .bDescriptorType = USB_DESCRIPTOR_TYPE_STRING,
-    .bString = {'M', 0, 'a', 0, 'p', 0, 'l', 0, 'e', 0},
+    .bString         = {'M', 0, 'a', 0, 'p', 0, 'l', 0, 'e', 0},
 };
 
 /* FIXME move to Wirish */
@@ -362,8 +407,8 @@ static ONE_DESCRIPTOR HID_Report_Descriptor = {
 #define N_STRING_DESCRIPTORS 3
 static ONE_DESCRIPTOR usbHIDString_Descriptor[N_STRING_DESCRIPTORS] = {
     {(uint8*)&usbHIDDescriptor_LangID,       USB_DESCRIPTOR_STRING_LEN(1)},
-    {(uint8*)&usbHIDDescriptor_iManufacturer,USB_DESCRIPTOR_STRING_LEN(8)},
-    {(uint8*)&usbHIDDescriptor_iProduct,     USB_DESCRIPTOR_STRING_LEN(5)},
+    {(uint8*)&usbHIDDescriptor_iManufacturer,         USB_DESCRIPTOR_STRING_LEN(default_iManufacturer_length)},
+    {(uint8*)&usbHIDDescriptor_iProduct,              USB_DESCRIPTOR_STRING_LEN(default_iProduct_length)},
     {(uint8*)&usbHIDDescriptor_iInterface,     USB_DESCRIPTOR_STRING_LEN(3)}
 };
 
@@ -452,10 +497,46 @@ USER_STANDARD_REQUESTS User_Standard_Requests = {
  * HID interface
  */
 
-void usb_hid_enable(gpio_dev *disc_dev, uint8 disc_bit) {
+void usb_hid_enable(gpio_dev *disc_dev, uint8 disc_bit, uint8* report_descriptor, uint16 report_length, 
+    uint16 idVendor, uint16 idProduct, uint8* iManufacturer, uint8* iProduct
+    ) {
     /* Present ourselves to the host. Writing 0 to "disc" pin must
      * pull USB_DP pin up while leaving USB_DM pulled down by the
      * transceiver. See USB 2.0 spec, section 7.1.7.3. */
+     
+    if (report_descriptor != NULL) {
+        HID_Report_Descriptor.Descriptor = report_descriptor;
+        HID_Report_Descriptor.Descriptor_Size = report_length;        
+    }
+    else {
+        HID_Report_Descriptor.Descriptor = hid_report_descriptor;
+        HID_Report_Descriptor.Descriptor_Size = sizeof(hid_report_descriptor);        
+    }
+    
+    if (idVendor != 0)
+        usbHIDDescriptor_Device.idVendor = idVendor;
+    else
+        usbHIDDescriptor_Device.idVendor = LEAFLABS_ID_VENDOR;
+     
+    if (idProduct != 0)
+        usbHIDDescriptor_Device.idProduct = idProduct;
+    else
+        usbHIDDescriptor_Device.idProduct = MAPLE_ID_PRODUCT;
+    
+    if (iManufacturer == NULL) {
+        iManufacturer = (uint8*)&usbHIDDescriptor_iManufacturer;
+    }
+           
+    usbHIDString_Descriptor[1].Descriptor = iManufacturer;
+    usbHIDString_Descriptor[1].Descriptor_Size = iManufacturer[0];
+     
+    if (iProduct == NULL) {
+        iProduct = (uint8*)&usbHIDDescriptor_iProduct;
+    }
+           
+    usbHIDString_Descriptor[2].Descriptor = iProduct;
+    usbHIDString_Descriptor[2].Descriptor_Size = iProduct[0];
+     
     if (disc_dev != NULL) {
         gpio_set_mode(disc_dev, disc_bit, GPIO_OUTPUT_PP);
         gpio_write_bit(disc_dev, disc_bit, 0);
@@ -746,5 +827,3 @@ static void usbSetConfiguration(void) {
 static void usbSetDeviceAddress(void) {
     USBLIB->state = USB_ADDRESSED;
 }
-
-#endif

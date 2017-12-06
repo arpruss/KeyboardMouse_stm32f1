@@ -18,8 +18,6 @@
  */
 
 #include "midihid.h" 
-#if defined(USB_HID_KMJ) || defined(USB_HID_KM) || defined(USB_HID_J)
-
 
 #ifndef _WIRISH_USB_HID_H_
 #define _WIRISH_USB_HID_H_
@@ -31,10 +29,14 @@
 class HIDDevice{
 private:
 	bool enabled = false;
+    uint8_t* iManufacturer;
+    uint8_t* iProduct;
 public:
 	HIDDevice(void);
 	void begin(void);
-	void end(void);
+    void begin(uint8_t* report_descriptor, uint16_t length, uint16_t idVendor=0, uint16_t idProduct=0,
+        char* manufacturer=NULL, char* product=NULL);
+    void end(void);
 };
 
 
@@ -271,7 +273,7 @@ private:
 public:
 	void sendManualReport(void);
     void setManualReportMode(bool manualReport);
-	HIDJoystick(void);
+	HIDJoystick(uint8_t number);
 	void begin(void);
 	void end(void);
 	void button(uint8_t button, bool val);
@@ -294,7 +296,8 @@ extern HIDKeyboard Keyboard;
 #if defined(USB_HID_KMJ) || defined(USB_HID_J)
 extern HIDJoystick Joystick;
 #endif
-
+#if defined(USB_HID_J2)
+extern HIDJoystick Joystick2;
 #endif
 
 #endif

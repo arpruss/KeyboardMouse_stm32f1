@@ -21,8 +21,6 @@
 #include "midihid.h" 
 #include "dummyserial.h"
  
-#if defined(USB_HID_KMJ) || defined(USB_HID_KM) || defined(USB_HID_J)
-
 #include "usb_hid_device.h"
 
 #include <string.h>
@@ -30,6 +28,7 @@
 #include <libmaple/nvic.h>
 #include "usb_hid.h"
 #include <libmaple/usb.h>
+#include <string.h>
 
 #include <wirish.h>
 
@@ -39,21 +38,66 @@
 
 #define USB_TIMEOUT 50
 
-HIDDevice::HIDDevice(void){
-	
+HIDDevice::HIDDevice(void) {
+}
+
+static uint8_t* generateUSBDescriptor(char* in) {
+    int length = strlen(in);
+    int outLength = USB_DESCRIPTOR_STRING_LEN(length);
+    uint8_t* out = new uint8_t[outLength];
+    
+    out[0] = outLength;
+    out[1] = USB_DESCRIPTOR_TYPE_STRING;
+    
+    for (int i=0; i<length; i++) {
+        out[2+2*i] = in[i];
+        out[3+2*i] = 0;
+    }    
+    
+    return out;
+}
+
+void HIDDevice::begin(uint8_t* report_descriptor, uint16_t length, uint16_t idVendor, uint16_t idProduct,
+        char* manufacturer, char* product) {
+            
+	if(!enabled) {
+        if (manufacturer != NULL) {
+            iManufacturer = generateUSBDescriptor(manufacturer);
+        }
+        else {
+            iManufacturer = NULL;
+        }
+
+        if (product != NULL) {
+            iProduct = generateUSBDescriptor(product);
+        }
+        else {
+            iProduct = NULL;
+        }
+
+		usb_hid_enable(BOARD_USB_DISC_DEV, BOARD_USB_DISC_BIT, report_descriptor, length,
+            idVendor, idProduct, iManufacturer, iProduct);
+            
+		enabled = true;
+	}
 }
 
 void HIDDevice::begin(void){
-	if(!enabled){
-		usb_hid_enable(BOARD_USB_DISC_DEV, BOARD_USB_DISC_BIT);
-		enabled = true;
-	}
+    begin(NULL, 0);
 }
 
 void HIDDevice::end(void){
 	if(enabled){
 	    usb_hid_disable(BOARD_USB_DISC_DEV, BOARD_USB_DISC_BIT);
 		enabled = false;
+        if (iManufacturer != NULL) {
+            delete iManufacturer;
+            iManufacturer = NULL;
+        }
+        if (iProduct != NULL) {
+            delete iProduct;
+            iProduct = NULL;
+        }
 	}
 }
 
@@ -299,8 +343,8 @@ void HIDJoystick::sendReport(void){
 	usb_hid_tx(NULL, 0);
 }
 
-HIDJoystick::HIDJoystick(void){
-	
+HIDJoystick::HIDJoystick(uint8_t number) {
+	joystick_Report[0] = 3+number;
 }
 
 void HIDJoystick::begin(void){
@@ -438,7 +482,8 @@ HIDMouse Mouse;
 HIDKeyboard Keyboard;
 #endif
 #if defined(USB_HID_KMJ) || defined(USB_HID_J)
-HIDJoystick Joystick;
+HIDJoystick Joystick(0);
 #endif
-
+#if defined(USB_HID_J2)
+HIDJoystick Joystick2(1);
 #endif
